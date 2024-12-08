@@ -56,8 +56,8 @@
 ### Prerequisites
 
 <ul>
-<li>[Rust](https://https://www.rust-lang.org/).</li>
-<li>[NEAR CLI](https://https://docs.near.org/tools/near-cli/).</li>
+<li><a href="https://https://www.rust-lang.org/"></a></li>
+<li><a href="https://docs.near.org/tools/near-cli/">NEAR CLI</a></li>
 <li>Node.js and NPM</li>
 <li>NEAR Testnet Account</li>
 </ul>
