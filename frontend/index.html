@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vesta</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Token Vesting DApp</h1>
+      <form id="vesting-form">
+        <input
+          type="text"
+          id="beneficiary"
+          placeholder="Beneficiary Account ID"
+          required
+        />
+        <input
+          type="number"
+          id="amount"
+          placeholder="Total Amount (in YoctoNEAR)"
+          required
+        />
+        <input
+          type="datetime-local"
+          id="start-time"
+          placeholder="Start Time"
+          required
+        />
+        <input
+          type="datetime-local"
+          id="end-time"
+          placeholder="End Time"
+          required
+        />
+        <button type="submit">Vest Tokens</button>
+      </form>
+
+      <form id="withdraw-form">
+        <input
+          type="text"
+          id="withdraw-beneficiary"
+          placeholder="Beneficiary Account ID"
+          required
+        />
+        <button type="submit">Withdraw Tokens</button>
+      </form>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
