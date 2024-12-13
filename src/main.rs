@@ -195,3 +195,55 @@ pub fn partial_withdraw(&mut self, beneficiary: AccountId, amount: Balance) {
     Promise::new(beneficiary).transfer(amount);
     env::log_str(&format!("Released {} tokens to {}", amount, beneficiary));
 }
+
+#[near_bindgen]
+#[derive(Default)]
+pub struct TokenVesting {
+    admin: AccountId,
+    beneficiaries: UnorderedMap<AccountId, VestingSchedule>,
+}
+
+#[near_bindgen]
+impl TokenVesting {
+    #[init]
+    pub fn new(admin: AccountId) -> Self {
+        Self {
+            admin,
+            beneficiaries: UnorderedMap::new(b"b"),
+        }
+    }
+
+    fn only_admin(&self) {
+        assert_eq!(env::predecessor_account_id(), self.admin, "Only admin can perform this action");
+    }
+
+    // Admin can remove a beneficiary
+    pub fn remove_beneficiary(&mut self, beneficiary: AccountId) {
+        self.only_admin();
+        self.beneficiaries.remove(&beneficiary);
+        env::log_str(&format!("Removed beneficiary {}", beneficiary));
+    }
+
+    // Admin can update the vesting schedule of a beneficiary
+    pub fn update_vesting_schedule(
+        &mut self,
+        beneficiary: AccountId,
+        total_amount: Balance,
+        start_time: u64,
+        end_time: u64,
+    ) {
+        self.only_admin();
+        assert!(
+            end_time > start_time,
+            "End time must be greater than start time"
+        );
+        let schedule = VestingSchedule {
+            total_amount,
+            released_amount: 0,
+            start_time,
+            end_time,
+        };
+        self.beneficiaries.insert(&beneficiary, &schedule);
+        env::log_str(&format!("Updated vesting schedule for {}", beneficiary));
+    }
+}
