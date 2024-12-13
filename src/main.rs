@@ -98,3 +98,72 @@ impl TokenVesting {
         }
     }
 }
+
+#[near_bindgen]
+impl TokenVesting {
+    // Get current vesting schedule for a beneficiary
+    pub fn get_vesting_schedule(&self, beneficiary: AccountId) -> Option<VestingSchedule> {
+        self.beneficiaries.get(&beneficiary)
+    }
+
+    // Get remaining withdrawable amount for a beneficiary
+    pub fn get_remaining_amount(&self, beneficiary: AccountId) -> Balance {
+        let schedule = self
+            .beneficiaries
+            .get(&beneficiary)
+            .expect("No vesting schedule found for the beneficiary");
+
+        let current_time = env::block_timestamp();
+        let vested_amount = self.calculate_vested_amount(&schedule, current_time);
+        vested_amount - schedule.released_amount
+    }
+}
+
+
+pub fn partial_withdraw(&mut self, beneficiary: AccountId, amount: Balance) {
+    let mut schedule = self
+        .beneficiaries
+        .get(&beneficiary)
+        .expect("No vesting schedule found for the beneficiary");
+
+    let current_time = env::block_timestamp();
+    assert!(
+        current_time >= schedule.start_time,
+        "Vesting period has not started yet"
+    );
+
+    let vested_amount = self.calculate_vested_amount(&schedule, current_time);
+    assert!(
+        vested_amount > schedule.released_amount,
+        "No tokens available for withdrawal"
+    );
+
+    let releasable_amount = vested_amount - schedule.released_amount;
+    assert!(amount <= releasable_amount, "Requested amount exceeds available balance");
+
+    schedule.released_amount += amount;
+    self.beneficiaries.insert(&beneficiary, &schedule);
+
+    Promise::new(beneficiary).transfer(amount);
+    env::log_str(&format!("Released {} tokens to {}", amount, beneficiary));
+}
+
+#[near_bindgen]
+impl TokenVesting {
+    // Get current vesting schedule for a beneficiary
+    pub fn get_vesting_schedule(&self, beneficiary: AccountId) -> Option<VestingSchedule> {
+        self.beneficiaries.get(&beneficiary)
+    }
+
+    // Get remaining withdrawable amount for a beneficiary
+    pub fn get_remaining_amount(&self, beneficiary: AccountId) -> Balance {
+        let schedule = self
+            .beneficiaries
+            .get(&beneficiary)
+            .expect("No vesting schedule found for the beneficiary");
+
+        let current_time = env::block_timestamp();
+        let vested_amount = self.calculate_vested_amount(&schedule, current_time);
+        vested_amount - schedule.released_amount
+    }
+}
